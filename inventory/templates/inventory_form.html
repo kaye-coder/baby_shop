@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Inventory</title>
+
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #D8C7B1; /* Light chocolate brown */
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            background-color: #F7D8B8; /* Light cream */
+            width: 0;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 20px;
+            padding-left: 10px; /* Slight padding inside the sidebar */
+            overflow-x: hidden;
+            transition: 0.3s; /* Smooth transition when toggling */
+        }
+
+        .sidebar a {
+            display: block;
+            color: #000;
+            padding: 10px;
+            text-decoration: none;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar a:hover {
+            background-color: #C69C6D; /* Darker shade of the background */
+            color: white;
+        }
+
+        .sidebar .close-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #C69C6D;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .sidebar .close-btn:hover {
+            background-color: #A57C52; /* Darker shade on hover */
+        }
+
+        .main-content {
+            margin-left: 0; /* Initially no margin */
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        .toggle-btn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #F7D8B8; /* Match the sidebar color */
+            border: none;
+            padding: 10px;
+            margin-bottom: 20px;
+            color: #000;
+        }
+
+        .toggle-btn:hover {
+            background-color: #C69C6D; /* Darker shade on hover */
+        }
+
+        .category-dropdown, .unit-dropdown {
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .category-dropdown option, .unit-dropdown option {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .add-row-btn {
+            margin-top: 10px;
+        }
+
+        .dashboard-btn {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            z-index: 999;
+        }
+    </style>
+
+    <script>
+        function addRow() {
+            let table = document.getElementById('inventory-table');
+            let newRow = table.insertRow(-1);
+
+            let categoryOptions = document.getElementById('category-template').innerHTML;
+            let unitOptions = document.getElementById('unit-template').innerHTML;
+
+            newRow.innerHTML = `
+                <td><input type="text" name="name[]" required></td>
+                <td>
+                    <select name="unit[]" required class="unit-dropdown">${unitOptions}</select>
+                </td>
+                <td>
+                    <select name="category[]" required class="category-dropdown">${categoryOptions}</select>
+                </td>
+                <td><input type="date" name="expiry_date[]" required></td>
+                <td><input type="number" name="purchasing_price[]" required></td>
+                <td><input type="number" name="selling_price[]" required></td>
+                <td><input type="number" name="quantity[]" required></td>
+                <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+            `;
+        }
+
+        function removeRow(button) {
+            let row = button.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+        function toggleSidebar() {
+            var sidebar = document.getElementById("sidebar");
+            var mainContent = document.getElementById("main-content");
+
+            // Check if sidebar is already open
+            if (sidebar.style.width === "200px") {
+                // Close the sidebar
+                sidebar.style.width = "0";
+                mainContent.style.marginLeft = "0";
+            } else {
+                // Open the sidebar
+                sidebar.style.width = "200px";
+                mainContent.style.marginLeft = "220px";
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="toggle-btn" onclick="toggleSidebar()">☰ Toggle Sidebar</button>
+
+    <!-- Dashboard Button -->
+    <a href="{% url 'dashboard' %}" class="btn btn-dark dashboard-btn">Dashboard</a>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="{% url 'inventory_list' %}">Inventory List</a>
+        <a href="{% url 'add_inventory' %}">Create Inventory</a>
+        <a href="{% url 'inventory_list' %}">Back</a>
+
+        <!-- Close Sidebar Button -->
+        <button class="close-btn" onclick="toggleSidebar()">Close Sidebar</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <h2>Add Inventory</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+            <table border="1" id="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Unit</th>
+                        <th>Category</th>
+                        <th>Expiry Date</th>
+                        <th>Purchasing Price</th>
+                        <th>Selling Price</th>
+                        <th>Quantity</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" name="name[]" required></td>
+                        <td>
+                            <select name="unit[]" required class="unit-dropdown">
+                                {% for unit in units %}
+                                    <option value="{{ unit.id }}">{{ unit.abbreviation }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <select name="category[]" required class="category-dropdown">
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}{% if category.semi_category %} ({{ category.semi_category.name }}){% endif %}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="date" name="expiry_date[]" required></td>
+                        <td><input type="number" name="purchasing_price[]" required></td>
+                        <td><input type="number" name="selling_price[]" required></td>
+                        <td><input type="number" name="quantity[]" required></td>
+                        <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button type="button" class="add-row-btn" onclick="addRow()">Add Row</button>
+            <button type="submit">Save</button>
+        </form>
+
+        <!-- Hidden templates for select options -->
+        <select id="category-template" style="display:none;">
+            {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}{% if category.semi_category %} ({{ category.semi_category.name }}){% endif %}</option>
+            {% endfor %}
+        </select>
+
+        <select id="unit-template" style="display:none;">
+            {% for unit in units %}
+                <option value="{{ unit.id }}">{{ unit.abbreviation }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Include Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

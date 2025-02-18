@@ -1,0 +1,178 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        /* Global Styles */
+        body {
+            background-image: url("{% static 'images/back.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            color: white;
+            margin: 0;
+            padding: 0;
+            animation: fadeIn 1s ease-in;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 36px;
+            animation: slideIn 1s ease-out;
+            color: black;  /* Change color to black */
+        }
+
+        /* Slide-in animation for heading */
+        @keyframes slideIn {
+            0% { transform: translateY(-50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .baby-shop {
+            font-size: 48px;
+            font-weight: bold;
+            color: #e74c3c;  /* Bright Red */
+            text-align: center;
+            margin-top: 20px;
+            animation: bounceIn 1s ease-out;
+        }
+
+        /* Bounce-in animation */
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Container to center content */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        /* Button Styles */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 12px 25px;
+            font-size: 16px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease-out;
+            width: 200px;
+            text-align: center;
+        }
+
+        /* Button Hover Effect */
+        button:hover {
+            opacity: 0.8;
+            transform: translateY(-5px);
+        }
+
+        /* Animation for buttons */
+        @keyframes fadeInUp {
+            0% { transform: translateY(30px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Different dark colors for buttons */
+        .btn-categories { background-color: #2c3e50; }  /* Dark Blue */
+        .btn-units { background-color: #34495e; }  /* Darker Blue */
+        .btn-customers { background-color: #1abc9c; }  /* Dark Green */
+        .btn-suppliers { background-color: #16a085; }  /* Teal */
+        .btn-inventory { background-color: #8e44ad; }  /* Purple */
+        .btn-sales { background-color: #2980b9; }  /* Blue */
+        .btn-purchases { background-color: #f39c12; }  /* Dark Yellow */
+        .btn-employees { background-color: #c0392b; }  /* Red */
+        .btn-view-users { background-color: #e74c3c; }  /* Bright Red */
+
+        /* Media Queries for Mobile Devices */
+        @media screen and (max-width: 768px) {
+            h2 {
+                font-size: 28px;
+                margin-top: 20px;
+            }
+
+            .baby-shop {
+                font-size: 36px;
+                margin-top: 10px;
+            }
+
+            button {
+                width: 150px;
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h2 {
+                font-size: 24px;
+            }
+
+            .baby-shop {
+                font-size: 32px;
+            }
+
+            button {
+                width: 100%;
+                font-size: 14px;
+                padding: 12px 20px;
+            }
+
+            .button-container {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to the Dashboard</h2>
+        <div class="baby-shop">Baby Shop</div>
+
+        <div class="button-container">
+            <a href="/categories/"><button class="btn-categories">Categories</button></a>
+            <a href="/units/"><button class="btn-units">Units</button></a>
+            <a href="/customers/"><button class="btn-customers">Customers</button></a>
+            <a href="/suppliers/"><button class="btn-suppliers">Suppliers</button></a>
+            <a href="/inventory/"><button class="btn-inventory">Inventory</button></a>
+            <a href="/sales/"><button class="btn-sales">Sales</button></a>
+            <a href="/purchases/"><button class="btn-purchases">Purchases</button></a>
+            <a href="/employees/"><button class="btn-employees">Employees</button></a>
+            <a href="{% url 'user_list' %}"><button class="btn-view-users">View Users</button></a>
+        </div>
+    </div>
+</body>
+</html>

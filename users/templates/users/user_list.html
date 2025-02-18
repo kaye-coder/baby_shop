@@ -1,0 +1,85 @@
+<!-- users/templates/users/user_list.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <style>
+        .sidebar {
+            width: 200px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+        .sidebar a {
+            display: block;
+            margin: 10px 0;
+        }
+        .sidebar button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .sidebar button:hover {
+            background-color: #45a049;
+        }
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="{% url 'dashboard' %}"><button>Dashboard</button></a> <!-- Added Dashboard link -->
+        <a href="{% url 'user_list' %}"><button>View Users</button></a>
+        <a href="{% url 'add_user' %}"><button>Add Users & Manage Access</button></a> <!-- Button to manage users -->
+    </div>
+
+    <div class="main-content">
+        <h1>Users List</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td> <!-- Assume you have a role field or model -->
+                    <td>
+                        <a href="{% url 'user_detail' user.id %}"><button>View Details</button></a> <!-- View user details -->
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

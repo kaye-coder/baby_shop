@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Receipt - Baby Shop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Sidebar Style */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #333;
+            color: white;
+            padding-top: 20px;
+            transition: 0.3s;
+            z-index: 9999;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+
+        .sidebar .close-btn {
+            font-size: 25px;
+            color: white;
+            background-color: #333;
+            border: none;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .receipt {
+            background: white;
+            padding: 10px;
+            border: 1px solid #ddd;
+            width: 100%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .shop-details {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .shop-name {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .shop-address {
+            font-size: 10px;
+            color: #666;
+        }
+
+        h2 {
+            text-align: center;
+            color: #007bff;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .total {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .payment-history {
+            margin-top: 10px;
+        }
+
+        .payment-history ul {
+            list-style-type: none;
+            padding-left: 0;
+            font-size: 10px;
+        }
+
+        .payment-history li {
+            margin: 2px 0;
+        }
+
+        .button-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .button-container button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Red Back Button */
+        .back-btn {
+            background: #ff5c5c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Normal View (A4) */
+        .normal-view {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Receipt Paper View (80mm) */
+        .receipt-paper-view {
+            width: 80mm;
+            max-width: none;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .button-container,
+            .sidebar,
+            .toggle-btn {
+                display: none;
+            }
+
+            .receipt {
+                width: 100%;
+                max-width: 800px;
+                margin: 0;
+                text-align: center;
+            }
+
+            .receipt-paper-view {
+                width: 80mm;
+                max-width: none;
+            }
+
+            /* Centering the receipt */
+            .receipt {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 100%;
+                max-width: 80mm;
+                font-size: 10px; /* Adjusted font size */
+                padding: 5mm; /* Reduced padding */
+            }
+
+            .receipt .shop-name {
+                font-size: 12px;
+            }
+
+            .receipt h2 {
+                font-size: 10px;
+            }
+
+            .receipt table th,
+            .receipt table td {
+                padding: 2mm;
+                font-size: 8px;
+            }
+
+            .receipt .total {
+                font-size: 10px;
+                font-weight: normal;
+            }
+
+            .payment-history ul {
+                font-size: 8px;
+            }
+        }
+
+        /* Sidebar Toggle Button */
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            border-radius: 5px;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button class="close-btn" onclick="toggleSidebar()">×</button>
+        <h2>Navigation</h2>
+        <a href="{% url 'sales_list' %}">Sales List</a>
+        <a href="{% url 'sales_create' %}">Create Sale</a>
+        <a href="#" onclick="goBack()">Back</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="receipt normal-view" id="receipt">
+            <div class="shop-details">
+                <div class="shop-name">Baby Shop</div>
+                <div class="shop-address">123 Baby Avenue, Kampala, Uganda</div>
+            </div>
+
+            <h2>Sales Receipt</h2>
+            <p><strong>Receipt ID:</strong> {{ sale.id }}</p>
+            <p><strong>Customer:</strong> {{ sale.customer.name }}</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Selling Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in sale_items %}
+                        <tr>
+                            <td>{{ item.item.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.selling_price }}</td>
+                            <td>{{ item.total }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <p class="total">Total: UGX {{ sale.grand_total }}</p>
+            <p class="total">Paid: UGX {{ sale.paid }}</p>
+            <p class="total">Balance: UGX {{ sale.balance }}</p>
+
+            {% if receipts %}
+                <div class="payment-history">
+                    <h3>Payment History</h3>
+                    <ul>
+                        {% for receipt in receipts %}
+                            <li>Amount: UGX {{ receipt.paid }} on {{ receipt.date_issued|date:"Y-m-d H:i" }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                <p>No payments have been made yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="button-container">
+            <button onclick="printReceipt()">Print Receipt</button>
+            <button onclick="normalView()">Normal View (A4)</button>
+            <button onclick="receiptPaperView()">Receipt Paper View (80mm)</button>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Go back to the previous page
+        function goBack() {
+            window.history.back();
+        }
+
+        // Print the receipt
+        function printReceipt() {
+            window.print();
+        }
+
+        // Switch to Normal View (A4)
+        function normalView() {
+            const receipt = document.getElementById('receipt');
+            receipt.classList.remove('receipt-paper-view');
+            receipt.classList.add('normal-view');
+        }
+
+        // Switch to Receipt Paper View (80mm)
+        function receiptPaperView() {
+            const receipt = document.getElementById('receipt');
+            receipt.classList.remove('normal-view');
+            receipt.classList.add('receipt-paper-view');
+        }
+    </script>
+</body>
+</html>

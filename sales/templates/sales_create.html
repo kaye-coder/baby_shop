@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Sale</title>
+    <script>
+        function updateSellingPrice(row) {
+            let itemDropdown = document.getElementById(`item_${row}`);
+            let priceField = document.getElementById(`price_${row}`);
+            let quantityField = document.getElementById(`quantity_${row}`);
+            let totalField = document.getElementById(`total_${row}`);
+
+            let selectedItem = itemDropdown.options[itemDropdown.selectedIndex];
+            let sellingPrice = parseFloat(selectedItem.getAttribute("data-price")) || 0;
+            priceField.value = sellingPrice.toFixed(2);
+
+            let quantity = parseInt(quantityField.value) || 0;
+            totalField.value = (sellingPrice * quantity).toFixed(2);
+            updateGrandTotal();
+        }
+
+        function updateGrandTotal() {
+            let total = 0;
+            document.querySelectorAll(".total").forEach(field => {
+                total += parseFloat(field.value) || 0;
+            });
+            document.getElementById("grand_total").value = total.toFixed(2);
+            updateBalance();
+        }
+
+        function updateBalance() {
+            let total = parseFloat(document.getElementById("grand_total").value) || 0;
+            let paid = parseFloat(document.getElementById("paid").value) || 0;
+            document.getElementById("balance").value = (total - paid).toFixed(2);
+        }
+
+        function addItemRow() {
+            let table = document.getElementById("items_table");
+            let rowCount = table.rows.length;
+            let row = table.insertRow();
+            let rowIndex = rowCount;
+
+            row.innerHTML = `
+                <td>
+                    <select name="item" id="item_${rowIndex}" onchange="updateSellingPrice(${rowIndex})" required>
+                        <option value="">-- Select Item --</option>
+                        {% for item in inventory %}
+                            <option value="{{ item.id }}" data-price="{{ item.selling_price }}">
+                                {{ item.name }} | {{ item.category.name }} ({{ item.category.semi_category }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><input type="number" name="quantity" id="quantity_${rowIndex}" value="1" min="1" required oninput="updateSellingPrice(${rowIndex})"></td>
+                <td><input type="text" id="price_${rowIndex}" readonly></td>
+                <td><input type="text" name="total" id="total_${rowIndex}" class="total" readonly></td>
+                <td><button type="button" onclick="removeItemRow(this)">Remove</button></td>
+            `;
+
+            updateSellingPrice(rowIndex);
+        }
+
+        function removeItemRow(button) {
+            let row = button.closest("tr");
+            row.remove();
+            updateGrandTotal();
+        }
+
+        // Function to toggle sidebar visibility and manage the button
+        function toggleSidebar() {
+            let sidebar = document.getElementById("sidebar");
+            let toggleButton = document.getElementById("toggleSidebarBtn");
+
+            sidebar.classList.toggle("active");
+            // Hide or show the toggle button based on sidebar state
+            if (sidebar.classList.contains("active")) {
+                toggleButton.style.display = "none";
+            } else {
+                toggleButton.style.display = "block";
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f2e1c1;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin-left: 250px;
+            transition: background-color 0.3s ease;
+        }
+
+        h2, h3 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: auto;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
+
+        table td {
+            background-color: #f9f9f9;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Sidebar styles */
+        #sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: -250px;
+            top: 0;
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            transition: left 0.3s ease;
+        }
+
+        #sidebar.active {
+            left: 0;
+        }
+
+        #sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        #sidebar a:hover {
+            background-color: #575757;
+        }
+
+        #sidebar button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #444;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        #toggleSidebarBtn {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Styling the Add Item button and Grand Total section */
+        #addItemBtnContainer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #addItemBtn {
+            margin-top: 15px;
+        }
+
+        #grandTotalContainer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <h3>Navigation</h3>
+        <a href="{% url 'sales_list' %}">Sales List</a>
+        <a href="{% url 'sales_create' %}">Create Sale</a>
+        <a href="{% url 'inventory_list' %}">Inventory</a>
+        <button onclick="toggleSidebar()">Close Sidebar</button>
+    </div>
+
+    <!-- Button to toggle sidebar -->
+    <button id="toggleSidebarBtn" onclick="toggleSidebar()">Open Sidebar</button>
+
+    <!-- Dashboard Button (Outside Sidebar) -->
+    <a href="{% url 'dashboard' %}" style="position: fixed; top: 20px; left: 270px; background-color: #4B0082; color: white; padding: 10px 20px; font-size: 18px; border: none; border-radius: 5px; z-index: 10000;">Dashboard</a>
+
+    <!-- Main content -->
+    <h2>Create Sale</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        <label>Customer:</label>
+        <select name="customer" required>
+            <option value="">-- Select Customer --</option>
+            {% for customer in customers %}
+                <option value="{{ customer.id }}">{{ customer.name }}</option>
+            {% endfor %}
+        </select>
+
+        <h3>Sale Items</h3>
+        <table id="items_table" border="1">
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Selling Price</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+            <tr>
+                <td>
+                    <select name="item" id="item_0" onchange="updateSellingPrice(0)" required>
+                        <option value="">-- Select Item --</option>
+                        {% for item in inventory %}
+                            <option value="{{ item.id }}" data-price="{{ item.selling_price }}">
+                                {{ item.name }} | {{ item.category.name }} ({{ item.category.semi_category }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><input type="number" name="quantity" id="quantity_0" value="1" min="1" required oninput="updateSellingPrice(0)"></td>
+                <td><input type="text" id="price_0" readonly></td>
+                <td><input type="text" name="total" id="total_0" class="total" readonly></td>
+                <td><button type="button" onclick="removeItemRow(this)">Remove</button></td>
+            </tr>
+        </table>
+
+        <div id="addItemBtnContainer">
+            <button id="addItemBtn" type="button" onclick="addItemRow()">Add Item</button>
+        </div>
+
+        <div id="grandTotalContainer">
+            <label>Grand Total:</label>
+            <input type="text" name="grand_total" id="grand_total" readonly>
+
+            <label>Paid Amount:</label>
+            <input type="number" name="paid" id="paid" value="0" required oninput="updateBalance()">
+
+            <label>Balance:</label>
+            <input type="text" name="balance" id="balance" readonly>
+        </div>
+
+        <button type="submit">Complete Sale</button>
+    </form>
+</body>
+</html>

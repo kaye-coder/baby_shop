@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;  /* Light gray background for better readability */
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #ffa500;  /* Light orange */
+            transition: 0.3s;
+            padding-top: 60px;
+            display: none;  /* Hidden by default */
+        }
+
+        .sidebar a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 25px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .sidebar.open {
+            display: block;
+        }
+
+        #sidebarToggle {
+            font-size: 16px;
+            cursor: pointer;
+            padding: 10px 20px;
+            background-color: #ffa500;
+            color: white;
+            border: none;
+            margin: 10px;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        #sidebarToggle:focus {
+            outline: none;
+        }
+
+        .employee-list {
+            margin-left: 300px;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-dashboard {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-dashboard:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar toggle button -->
+<button id="sidebarToggle" class="btn btn-warning">Open Sidebar</button>
+
+<!-- Sidebar menu -->
+<div id="mySidebar" class="sidebar">
+    <a href="{% url 'employee_list' %}">Employee List</a>
+    <a href="{% url 'employee_create' %}">Create Employee</a>
+</div>
+
+<!-- Employee List -->
+<div class="employee-list">
+    <h2>Employee List</h2>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Position</th>
+                <th>Department</th>
+                <th>Hire Date</th>
+                <th>Salary</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for employee in employees %}
+            <tr id="employee-{{ employee.pk }}">
+                <td>{{ employee.name }}</td>
+                <td>{{ employee.age }}</td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.phone }}</td>
+                <td>{{ employee.position }}</td>
+                <td>{{ employee.department }}</td>
+                <td>{{ employee.hire_date }}</td>
+                <td>{{ employee.salary }}</td>
+                <td>
+                    <a href="{% url 'employee_edit' employee.pk %}" class="btn btn-primary btn-sm">Edit</a> |
+                    <form action="{% url 'employee_delete' employee.pk %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary mt-3">Go to Dashboard</a>
+</div>
+
+<!-- Sidebar script -->
+<script>
+    const toggleButton = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('mySidebar');
+
+    toggleButton.onclick = function() {
+        sidebar.classList.toggle('open');
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

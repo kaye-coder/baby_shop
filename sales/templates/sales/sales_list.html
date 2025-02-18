@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales List</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Sidebar Styles */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px; /* Sidebar hidden by default */
+            background-color: #4B0082; /* Purple-ish color */
+            color: white;
+            padding-top: 20px;
+            transition: 0.3s;
+            z-index: 9999;
+        }
+
+        .sidebar.active {
+            left: 0; /* Sidebar visible when active */
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+
+        .sidebar .close-btn {
+            font-size: 25px;
+            color: white;
+            background-color: #4B0082;
+            border: none;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        /* Button Container */
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #D65F5F; /* Light reddish color */
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            border-radius: 5px;
+            z-index: 10000;
+        }
+
+        .table th, .table td {
+            text-align: center;
+        }
+
+        .confirmation-btn {
+            color: red;
+        }
+
+        .content {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+            padding: 20px;
+            background-color: #F1E0D6; /* Light reddish creamy background */
+        }
+
+        /* Button Styles for View Receipt and Update Payment */
+        .btn-orange {
+            background-color: #FF914D; /* Orange color */
+            color: white;
+            border: none;
+        }
+
+        .btn-purple {
+            background-color: #9B59B6; /* Purple color */
+            color: white;
+            border: none;
+        }
+
+        .btn-green {
+            background-color: #A1D68A; /* Light green */
+            color: white;
+            border: none;
+        }
+
+        /* Body Styles */
+        body {
+            margin-left: 0;
+            padding: 20px;
+            background-color: #F1E0D6; /* Light reddish creamy background */
+            font-family: Arial, sans-serif;
+        }
+
+        .content .table thead {
+            background-color: #9B59B6; /* Purple-ish for the header */
+            color: white;
+        }
+
+        .content .table tbody tr:hover {
+            background-color: #E8E8E8;
+        }
+
+        /* Small margin for back button */
+        .back-btn {
+            color: red;
+            font-size: 16px;
+        }
+
+        /* Dashboard Button */
+        .dashboard-btn {
+            position: fixed;
+            top: 20px;
+            left: 270px;
+            background-color: #4B0082;
+            color: white;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Open Sidebar Button -->
+    <button class="toggle-btn" onclick="toggleSidebar()">Open Sidebar</button>
+
+    <!-- Dashboard Button (Outside Sidebar) -->
+    <a href="{% url 'dashboard' %}" class="dashboard-btn">Dashboard</a>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button class="close-btn" onclick="toggleSidebar()">×</button>
+        <h2>Navigation</h2>
+        <a href="{% url 'sales_list' %}">Sales List</a>
+        <a href="{% url 'sales_create' %}">Create Sale</a>
+        <a href="{% url 'inventory_list' %}">Inventory</a>
+        <a href="#" onclick="goBack()">Back</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h2 class="text-center" style="color: #9B59B6;">Sales List</h2>
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Items</th>
+                    <th>Customer</th>
+                    <th>Grand Total</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
+                    <th>Date Sold</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                    <tr>
+                        <td>
+                            {% for item in sale.saleitem.all %}
+                                {{ item.item.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ sale.customer }}</td>
+                        <td>{{ sale.grand_total }}</td>
+                        <td>{{ sale.paid }}</td>
+                        <td>{{ sale.balance }}</td>
+                        <td>{{ sale.date_sold }}</td>
+                        <td>
+                            <!-- Updated to buttons with specific colors -->
+                            <a href="{% url 'sales_receipt' sale.id %}" class="btn btn-orange">View Receipt</a> |
+                            <a href="{% url 'update_payment' sale.id %}" class="btn btn-purple">Update Payment</a> |
+                            <form action="{% url 'sales_delete' sale.id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="confirmation-btn" onclick="return confirm('Are you sure you want to delete this sale?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="text-center">
+            <a href="{% url 'sales_create' %}" class="btn btn-primary">Create New Sale</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Go back to the previous page
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
