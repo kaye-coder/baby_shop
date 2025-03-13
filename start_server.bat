@@ -1,6 +1,6 @@
 @echo off
-cd C:\Users\godfrey_adm\PycharmProjects\baby\baby_shop
-call C:\Users\godfrey_adm\PycharmProjects\baby\env\Scripts\activate.bat
+cd path to file
+call C:\Users\user\PycharmProjects\baby\env\Scripts\activate.bat
 python manage.py makemigrations
 python manage.py migrate
 start /B python manage.py runserver
